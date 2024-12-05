@@ -1,6 +1,7 @@
 # Pandemic Cellular Automata Simulation
 
-> [!WARNING] TODO
+> [!WARNING]
+> TODO:
 >   * Mathematical formulation:
 >       * Virus transmission rate as a function of neighboring cells.
 >       * Antibody decay or reinforcement over time.

@@ -9,21 +9,21 @@ args = parser.parse_args()
 
 # global variables
 
-LANDSIZE = 20       # size for the landscape
+board_size = 20       # size for the board
 timestep = 0.01     # time step for each update
-pInfected = 0.01    # probability of a cell initially being infected
-virusInit = 0.5     # amount of virus of initially infected cells
-rVV = 0.5           # change rate of virus depending on amount of virus
-rVA = 4             # change rate of virus depending on amount of antibodies
-rAV = 2             # change rate of antibodies depending on amoung of virus
-AbDecay = 0.0       # natural decay for antibodies
+prob_infected = 0.01    # probability of a cell initially being infected
+virus_init = 0.5     # amount of virus of initially infected cells
+rate_vv = 0.5           # change rate of virus depending on amount of virus
+rate_va = 4             # change rate of virus depending on amount of antibodies
+rate_av = 2             # change rate of antibodies depending on amoung of virus
+antibody_decay_rate = 0.0       # natural decay for antibodies
 
-THInfected = 0.5    # threshold amount of virus for a cell to be infected
-THRecovered = 0.5   # threshold amount of antibody for a cell to be recovered
+threshold_infected = 0.5    # threshold amount of virus for a cell to be infected
+threshold_recovered = 0.5   # threshold amount of antibody for a cell to be recovered
 
 rng = np.random.default_rng()   # generates random float distributed uniformly over [0,1)
 
-spreadWeight = [[0.3, 0.3, 0.3, 0.3, 0.3],
+weight_spread = [[0.3, 0.3, 0.3, 0.3, 0.3],
                 [0.3, 0.6, 0.6, 0.6, 0.3],
                 [0.3, 0.6, 1.0, 0.6, 0.3],
                 [0.3, 0.6, 0.6, 0.6, 0.3],
@@ -31,33 +31,33 @@ spreadWeight = [[0.3, 0.3, 0.3, 0.3, 0.3],
 
 
 class cell:
-    def __init__(self, type = None):
+    def __init__(self, type=None, model="linear"):
         if type == 'infected':
-            self.virus_val = virusInit
+            self.virus_val = virus_init
             self.antibody_val = 0
         elif type == 'recovered':
             self.virus_val = 0
             self.antibody_val = 1
         else:
-            if rng.random() < pInfected:
-                self.virus_val = virusInit
+            if rng.random() < prob_infected:
+                self.virus_val = virus_init
             else:
                 self.virus_val = 0
             self.antibody_val = 0
-    
-    def updateVal(self, exposure = 0):
+
+    def update_val(self, exposure=0):
         V, A = self.virus_val, self.antibody_val
 
         # update virus_val according to exposure and A
-        self.virus_val = min(1.0, V + timestep*(rVV*exposure - rVA*A))
-        self.virus_val = max(0.0, self.virus_val)
+        deltaV = timestep*(rate_vv*exposure - rate_va*A)
+        self.virus_val = max(0.0, min(1.0, V + deltaV))
 
         # update antibody_val according to V and A
-        self.antibody_val = min(1.0, A + timestep*(rAV*V - AbDecay*A))
-        self.virus_val = max(0.0, self.virus_val)
+        deltaA = timestep*(rate_av*V - antibody_decay_rate*A)
+        self.antibody_val = max(0.0, min(1.0, A + deltaA))
     
 
-class landscape:
+class board:
     def __init__(self, size):
         self.size = size
         self.cells = []
@@ -65,23 +65,23 @@ class landscape:
             self.cells.append([cell() for j in range(size)])
 
     def step(self):
-        virusAmount = []
+        virus_distribution = []
         for row in self.cells:
-            virusAmount.append([c.virus_val for c in row])
-        virusWeight = scipy.signal.convolve2d(virusAmount, spreadWeight, 'same')
+            virus_distribution.append([c.virus_val for c in row])
+        virus_weight = scipy.signal.convolve2d(virus_distribution, weight_spread, 'same')
         for i in range(self.size):
             for j in range(self.size):
-                self.cells[i][j].updateVal(exposure = virusWeight[i][j])
+                self.cells[i][j].update_val(exposure = virus_weight[i][j])
     
-    def populationCount(self):
+    def population_count(self):
         cnt = {
             'susceptible': 0, 'infected': 0, 'recovered': 0
         }
         for row in self.cells:
             for c in row:
-                if c.virus_val >= THInfected:
+                if c.virus_val >= threshold_infected:
                     cnt['infected'] += 1
-                elif c.antibody_val >= THRecovered:
+                elif c.antibody_val >= threshold_recovered:
                     cnt['recovered'] += 1
                 else:
                     cnt['susceptible'] += 1
@@ -91,11 +91,11 @@ if __name__ == '__main__':
     if type(args.seed) == int:
         rng = np.random.default_rng(seed = args.seed)
 
-    L = landscape(LANDSIZE)
+    sim = board(board_size)
     for d in range(1000):
-        L.step()
+        sim.step()
         if d % 50 == 0:
-            popCnt = L.populationCount()
-            print(f'Day {d}: {popCnt['susceptible']} susceptible, {popCnt['infected']} infected, {popCnt['recovered']} recovered')
+            pop_cnt = sim.population_count()
+            print(f'Day {d}: {pop_cnt['susceptible']} susceptible, {pop_cnt['infected']} infected, {pop_cnt['recovered']} recovered')
     
     # TODO: visualize data

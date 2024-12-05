@@ -10,32 +10,40 @@ args = parser.parse_args()
 # global variables
 
 board_size = 20                 # size for the board
-scale_factor = 0.05             # scale factor of change in virus_val and antibody_val
-precision = 10                  # number of steps a day is divided into
+scale_factor = 0.5              # scale factor of change in virus_val and antibody_val
+precision = 100                 # number of steps a day is divided into
+attr_variation = 0.3            # variation of attributes of individual cells
+fluctuation = 0.1               # randomness within value update
 prob_infected = 0.01            # probability of a cell initially being infected
-virus_init = 0.2                # amount of virus of initially infected cells
+virus_init = 0.01               # amount of virus of initially infected cells
 rate_vv = 0.5                   # change rate of virus depending on amount of virus
-rate_va = 4                     # change rate of virus depending on amount of antibodies
-rate_av = 2                     # change rate of antibodies depending on amoung of virus
-antibody_decay_rate = 0.0       # natural decay for antibodies
+rate_va = 3.1                   # change rate of virus depending on amount of antibodies
+rate_av = 3.0                   # change rate of antibodies depending on amount of virus
+antibody_decay_rate = 0.01      # natural decay for antibodies
+saturation_param = 0.5          # saturation parameter for antibody production
 
 threshold_infected = 0.2        # threshold amount of virus for a cell to be infected
 threshold_recovered = 0.5       # threshold amount of antibody for a cell to be recovered
 
 rng = np.random.default_rng()   # generates random float distributed uniformly over [0,1)
 
-weight_spread = [[0.3, 0.3, 0.3, 0.3, 0.3],
-                [0.3, 0.6, 0.6, 0.6, 0.3],
-                [0.3, 0.6, 1.0, 0.6, 0.3],
-                [0.3, 0.6, 0.6, 0.6, 0.3],
-                [0.3, 0.3, 0.3, 0.3, 0.3]]  # weight for dependency of the change of rate of virus on neighbor cells
+weight_spread = [[0.1, 0.1, 0.1, 0.1, 0.1],
+                [0.1, 0.3, 0.3, 0.3, 0.1],
+                [0.1, 0.3, 1.0, 0.3, 0.1],
+                [0.1, 0.3, 0.3, 0.3, 0.1],
+                [0.1, 0.1, 0.1, 0.1, 0.1]]  # weight for dependency of the change of rate of virus on neighbor cells
 
 
 class cell:
     def __init__(self, type=None, model="linear"):
         # initialize model type
-        # linear: dV and dA are linear in virus_val and antibody_valw
+        # linear: dV and dA are linear in virus_val and antibody_val
+        # saturation: include saturation of antibody production
         self.model = model
+        # cell parameters
+        self.rate_vv = np.random.lognormal(np.log(rate_vv), attr_variation)
+        self.rate_va = np.random.lognormal(np.log(rate_va), attr_variation)
+        self.rate_av = np.random.lognormal(np.log(rate_av), attr_variation)
 
         # initialize virus_val and antibody_val according to cell type
         if type == 'infected':
@@ -53,13 +61,17 @@ class cell:
     
     def __delta_virus(self, exposure=0):
         if self.model == "linear":
-            return rate_vv*exposure - rate_va*self.antibody_val
+            return self.rate_vv*exposure - self.rate_va*self.antibody_val*self.virus_val
+        elif self.model == "saturation":
+            return self.rate_vv*exposure - self.rate_va*self.antibody_val*self.virus_val
         else:
             return 0
     
     def __delta_antibody(self):
         if self.model == "linear":
-            return rate_av*self.virus_val - antibody_decay_rate*self.antibody_val
+            return self.rate_av*self.virus_val - antibody_decay_rate*self.antibody_val
+        elif self.model == "saturation":
+            return self.rate_av*self.virus_val/(1 + saturation_param*self.virus_val) - antibody_decay_rate*self.antibody_val
         else:
             return 0
     
@@ -67,8 +79,9 @@ class cell:
         V, A = self.virus_val, self.antibody_val
 
         # compute deltaV and delta_antibody
-        deltaV = scale_factor*self.__delta_virus(exposure)/precision
-        deltaA = scale_factor*self.__delta_antibody()/precision
+        fluct = np.random.lognormal(0, fluctuation)
+        deltaV = fluct * scale_factor * self.__delta_virus(exposure) / precision
+        deltaA = fluct * scale_factor * self.__delta_antibody() / precision
 
         # update virus_val and antibody_val
         self.virus_val = max(0.0, min(1.0, V + deltaV))
@@ -76,11 +89,12 @@ class cell:
     
 
 class board:
-    def __init__(self, size):
+    def __init__(self, size, model="linear"):
         self.size = size
+        self.model = model
         self.cells = []
         for i in range(size):
-            self.cells.append([cell() for j in range(size)])
+            self.cells.append([cell(model=self.model) for j in range(size)])
 
     def step(self):
         for _ in range(precision):
@@ -111,7 +125,7 @@ class board:
         inf = np.zeros(num_days)
         rec = np.zeros(num_days)
         x = np.array(range(num_days))
-        for d in range(100):
+        for d in range(num_days):
             self.step()
             pop_cnt = self.population_count()
             if print_count > 0 and d % print_count == 0:
@@ -122,9 +136,9 @@ class board:
             inf[d] = pop_cnt['infected']
             rec[d] = pop_cnt['recovered']
         if plot:
-            y = np.vstack((rec, inf, sus))
+            y = np.vstack((inf, rec, sus))
             fig, ax = plt.subplots()
-            ax.stackplot(x, y, labels=('recovered', 'infected', 'susceptible'))
+            ax.stackplot(x, y, labels=('infected', 'recovered', 'susceptible'))
             plt.xlabel('Days')
             plt.ylabel('Population')
             plt.legend()
@@ -156,8 +170,8 @@ if __name__ == '__main__':
     if type(args.seed) == int:
         rng = np.random.default_rng(seed = args.seed)
 
-    sim = board(board_size)
-    sim.run()
+    sim = board(board_size, model="saturation")
+    sim.run(50)
     
     # TODO: simulation log
     # TODO: visualize data

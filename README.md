@@ -11,9 +11,28 @@
 
 ## Introduction
 
-<!-- Importance of simulating disease dynamics during pandemics. -->
+* Importance of simulating disease dynamics during pandemics.
+* Brief description of PCA and the SEIR model.
 
-<!-- Brief description of PCA and the SEIR model. -->
+## Program Installation and Usage
+
+Prerequisites include *Python v.3.12.7* and *Numpy v.2.1.1*.
+
+1. Clone the repository
+2. `cd` into the directory
+
+```bash
+cd pandemic-cellular-automata
+```
+3. Type the following command to display the help message (to see what options are available)
+
+```bash
+python cellsim.py -h
+```
+4. Run program with desired options
+```bash
+python cellsim.py [options]
+```
 
 ## Focus and Features
 
@@ -45,11 +64,14 @@ $n_S, n_E, n_I, n_R$ denotes the population of susceptible, exposed, infected, a
 
 ## Implementation
 
-Python 3.12.7
-
 Each cell is treated as a target, and has two attributes: amount of virus `virus_val`, and amount of antibodies `antibody_val`.
 
 The rate of change of the amount of virus depends on the amount of virus of neighboring cells (including the cell itself), and the amount of antibody of the cell itself. 
+
+## Results
+
+![sample_image](./images/seed0_saturation.png)
+*Sample image generated with default parameters and seed 0*
 
 ## Impact and Contributions
 

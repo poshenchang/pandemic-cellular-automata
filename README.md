@@ -2,12 +2,8 @@
 
 > [!WARNING]
 > TODO:
->   * Mathematical formulation:
->       * Virus transmission rate as a function of neighboring cells.
->       * Antibody decay or reinforcement over time.
->   * Algorithm design:
->       * Cellular state update rules.
->       * Stochastic transitions.
+>   * References, including PCA and viral propagation
+>   * Real world data regarding pandemic (e.g. COVID-19)
 
 ## Introduction
 
@@ -104,7 +100,7 @@ To simulate randomness in virus and antibody production, for each step, the rate
 
 ## Results
 
-![sample_image](./images/seed0_saturation.png)
+![sample_image](./images/saturation_0.png)
 
 *Sample image generated with default parameters and seed 0*
 

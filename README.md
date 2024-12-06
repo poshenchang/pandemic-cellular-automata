@@ -68,9 +68,44 @@ Each cell is treated as a target, and has two attributes: amount of virus `virus
 
 The rate of change of the amount of virus depends on the amount of virus of neighboring cells (including the cell itself), and the amount of antibody of the cell itself. 
 
+For the following discussion, let $V_i$ and $A_i$ denote the value of virus and antibody of cell $i$.
+
+### Linear Model
+
+The virus count in a cell depends on the virus concentration in neighboring cells:
+
+$$
+\frac{dV_i}{dt} = \alpha\sum_j k_{ij}V_j - \beta V_iA_i
+$$
+
+* $k_ij$ denotes the transmission rate from cell $j$ to cell $i$, and $\alpha$ denotes the replication rate of the virus
+* $\mu$ denotes the rate of antibodies eliminating the virus
+
+$$
+\frac{dA_i}{dt} = \gamma V_i - \delta A_i
+$$
+
+* $\gamma$ denotes the rate of growth of antibodies stimulated by virus
+* $\delta$ denotes the natural decay rate of antibodies
+
+### Saturation Model
+
+In saturation model, we introduce the saturation parameter $s$, which represents the capacity of the immune system to produce antibodies.
+
+$$
+\frac{dA_i}{dt} = \frac{\gamma V_i}{1 + sV_i} - \delta A_i
+$$
+
+### Heterogeneous Population and Fluctuation
+
+To simulate variation in attributes of individual cells, when each cell is initialized, the parameters $\alpha, \beta, \gamma, \delta$ are sampled from log-normal distributions. 
+
+To simulate randomness in virus and antibody production, for each step, the rate of changes $dV/dt$ and $dA/dt$ are scaled by random factors, which are sampled from a log-normal distribution with median $1$. 
+
 ## Results
 
 ![sample_image](./images/seed0_saturation.png)
+
 *Sample image generated with default parameters and seed 0*
 
 ## Impact and Contributions

@@ -100,9 +100,13 @@ To simulate randomness in virus and antibody production, for each step, the rate
 
 ## Results
 
-![sample_image](./images/saturation_0.png)
+![sample_image](./images/point25var_0.png)
 
 *Sample image generated with default parameters and seed 0*
+
+![sample_animation](./images/point25var_0.gif)
+
+*Sample heatmap animation generated with default parameters and seed 0*
 
 ## Impact and Contributions
 

@@ -1,3 +1,5 @@
 .vscode
+extract-csv.py
 *.log
 *.json
+*.csv

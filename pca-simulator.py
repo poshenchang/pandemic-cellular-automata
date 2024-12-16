@@ -5,7 +5,9 @@ from argparse import ArgumentParser
 import json
 
 parser = ArgumentParser(prog = 'python pca-simulator.py')
-parser.add_argument('-s', '--seed', help = 'set seed for deterministic output', type = int)
+parser.add_argument('-sd', '--seed', help = 'set seed for deterministic output', type = int)
+parser.add_argument('-S', '--size', help = 'set size for simulation board size', type = int)
+parser.add_argument('-p', '--precision', help = 'set precision for simulation', type = int)
 args = parser.parse_args()
 
 # global variables
@@ -29,9 +31,9 @@ threshold_recovered = 0.5       # threshold amount of antibody for a cell to be 
 rng = np.random.default_rng()   # generates random float distributed uniformly over [0,1)
 
 weight_spread = [[0.0, 0.0, 0.0, 0.0, 0.0],
-                [0.0, 0.0, 0.4, 0.0, 0.0],
-                [0.0, 0.4, 0.8, 0.4, 0.0],
-                [0.0, 0.0, 0.4, 0.0, 0.0],
+                [0.0, 0.0, 0.1, 0.0, 0.0],
+                [0.0, 0.1, 0.6, 0.1, 0.0],
+                [0.0, 0.0, 0.1, 0.0, 0.0],
                 [0.0, 0.0, 0.0, 0.0, 0.0]]  # weight for dependency of the change of rate of virus on neighbor cells
 
 
@@ -198,6 +200,10 @@ class board:
 if __name__ == '__main__':
     if type(args.seed) == int:
         rng = np.random.default_rng(seed = args.seed)
+    if type(args.size) == int:
+        board_size = args.size
+    if type(args.precision) == int:
+        precision = args.precision
 
     sim = board(board_size, model="saturation")
     sim.run(250)

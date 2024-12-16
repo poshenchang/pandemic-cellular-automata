@@ -4,6 +4,12 @@
 > TODO:
 >   * References, including PCA and viral propagation
 >   * Real world data regarding pandemic (e.g. COVID-19)
+>   * 1-minute video
+>       * Introduction
+>       * Importance
+>       * Matehmatical model
+>       * Demo/Data visualization
+>       * Data fitting
 
 ## Introduction
 
@@ -115,7 +121,14 @@ To simulate randomness in virus and antibody production, for each step, the rate
 
 ## Refrences
 
-###  [Computational Model on COVID-19 Pandemic Using Probabilistic Cellular Automata](https://link.springer.com/article/10.1007/s42979-021-00619-3)
+*  [Computational Model on COVID-19 Pandemic Using Probabilistic Cellular Automata](https://link.springer.com/article/10.1007/s42979-021-00619-3)
 
 Uses a probabilistic cellular automata (PCA) model on a two-dimensional lattice, provides an epidemiological framework with five subpopulations: susceptible, exposed, infected, quarantined, and recovered. The model captures disease spread by analyzing interactions within neighborhoods, simulating scenarios such as infection rates and quarantining strategies. Helps understanding the dynamics of COVID-19 and the effectiveness of control measures. 
 
+* [Cellular automata in the light of COVID-19](https://link.springer.com/article/10.1140/epjs/s11734-022-00619-1#Tab3)
+
+Currently, the world has been facing the brunt of a pandemic due to a disease called COVID-19 for the last 2 years. To study the spread of such infectious diseases it is important to not only understand their temporal evolution but also the spatial evolution. In this work, the spread of this disease has been studied with a cellular automata (CA) model to find the temporal and the spatial behavior of it. Here, we have proposed a neighborhood criteria which will help us to measure the social confinement at the time of the disease spread. The two main parameters of our model are (i) disease transmission probability (q) which helps us to measure the infectivity of a disease and (ii) exponent (n) which helps us to measure the degree of the social confinement. Here, we have studied various spatial growths of the disease by simulating this CA model. Finally we have tried to fit our model with the COVID-19 data of India for various waves and have attempted to match our model predictions with regards to each wave to see how the different parameters vary with respect to infectivity and restrictions in social interaction.
+
+* [COVID-19 India data source](covid19india.org)
+
+* [地區年齡性別統計表-嚴重特殊傳染性肺炎](https://data.gov.tw/dataset/120711)

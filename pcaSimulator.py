@@ -3,6 +3,7 @@ import scipy
 import matplotlib.pyplot as plt
 from argparse import ArgumentParser
 import json
+from pcaVisualizer import makeAni
 
 parser = ArgumentParser(prog = 'python pca-simulator.py')
 parser.add_argument('-sd', '--seed', help = 'set seed for deterministic output', type = int)
@@ -124,7 +125,7 @@ class board:
                     cnt['susceptible'] += 1
         return cnt
     
-    def run(self, num_days=100, print_count=10, plot=True):
+    def run(self, num_days=100, print_count=10, plot=True, output_json=False):
         sus = np.zeros(num_days)
         inf = np.zeros(num_days)
         rec = np.zeros(num_days)
@@ -146,13 +147,14 @@ class board:
                     virus_dist[d][i][j] = self.cells[i][j].virus_val
                     antibody_dist[d][i][j] = self.cells[i][j].antibody_val
         
-        dist_log = {
-            'virus': virus_dist.tolist(),
-            'antibody': antibody_dist.tolist()
-        }
-        json_obj = json.dumps(dist_log, indent=4)
-        with open("./output.json", "w") as outfile:
-            outfile.write(json_obj)
+        if output_json:
+            dist_log = {
+                'virus': virus_dist.tolist(),
+                'antibody': antibody_dist.tolist()
+            }
+            json_obj = json.dumps(dist_log, indent=4)
+            with open("./output.json", "w") as outfile:
+                outfile.write(json_obj)
 
         if plot:
             y = np.vstack((inf, rec, sus))
@@ -206,4 +208,5 @@ if __name__ == '__main__':
         precision = args.precision
 
     sim = board(board_size, model="saturation")
-    sim.run(250)
+    ret = sim.run(250)
+    makeAni(ret[3], ret[4])

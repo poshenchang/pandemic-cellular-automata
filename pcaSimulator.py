@@ -227,14 +227,5 @@ if __name__ == '__main__':
     if type(args.precision) == int:
         precision = args.precision
 
-    # sim = board(board_size, model="saturation")
-    # ret = sim.run(250)
-    # makeAni(ret[3], ret[4])
-    infile = open("Taipei.json", "r")
-    Taipei_data = json.load(infile)
-    optim_param = datafit(Taipei_data)
-    print(f'optimal parameters: {optim_param}')
-    scale_factor, rate_vv = optim_param
     sim = board(board_size, model="saturation")
-    ret = sim.run(len(Taipei_data))
-    makeAni(ret[3], ret[4])
+    ret = sim.run(250)

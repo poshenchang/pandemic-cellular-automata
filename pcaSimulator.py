@@ -14,27 +14,27 @@ args = parser.parse_args()
 # global variables
 
 board_size = 500                # size for the board
-scale_factor = 0.1              # scale factor of change in virus_val and antibody_val
+scale_factor = 2.0              # scale factor of change in virus_val and antibody_val
 precision = 1                   # number of steps a day is divided into
-attr_variation = 0.2            # variation of attributes of individual cells
-fluctuation = 0.2               # randomness within transition
+attr_variation = 0.25           # variation of attributes of individual cells
+fluctuation = 0.5               # randomness within transition
 prob_infected = 0.001           # probability of a cell initially being infected
 virus_init = 0.01               # amount of virus of initially infected cells
 rate_vv = 0.5                   # change rate of virus depending on amount of virus
 rate_va = 2.0                   # change rate of virus depending on amount of antibodies
-rate_av = 1.0                   # change rate of antibodies depending on amount of virus
-antibody_decay_rate = 0.01      # natural decay for antibodies
+rate_av = 3.0                   # change rate of antibodies depending on amount of virus
+antibody_decay_rate = 0.20      # natural decay for antibodies
 saturation_param = 0.5          # saturation parameter for antibody production
 
-threshold_infected = 0.1        # threshold amount of virus for a cell to be infected
+threshold_infected = 0.05       # threshold amount of virus for a cell to be infected
 threshold_recovered = 0.5       # threshold amount of antibody for a cell to be recovered
 
 rng = np.random.default_rng()   # generates random float distributed uniformly over [0,1)
 
 weight_spread = [[0.0, 0.0, 0.0, 0.0, 0.0],
-                [0.0, 0.0, 0.4, 0.0, 0.0],
-                [0.0, 0.4, 0.8, 0.4, 0.0],
-                [0.0, 0.0, 0.4, 0.0, 0.0],
+                [0.0, 0.0, 0.1, 0.0, 0.0],
+                [0.0, 0.1, 0.4, 0.1, 0.0],
+                [0.0, 0.0, 0.1, 0.0, 0.0],
                 [0.0, 0.0, 0.0, 0.0, 0.0]]  # weight for dependency of the change of rate of virus on neighbor cells
 
 
@@ -45,10 +45,10 @@ class cell:
         # saturation: include saturation of antibody production
         self.model = model
         # cell parameters
-        self.rate_vv = np.random.lognormal(np.log(rate_vv), attr_variation)
-        self.rate_va = np.random.lognormal(np.log(rate_va), attr_variation)
-        self.rate_av = np.random.lognormal(np.log(rate_av), attr_variation)
-        self.antibody_decay_rate = np.random.lognormal(np.log(antibody_decay_rate), attr_variation)
+        self.rate_vv = rng.lognormal(np.log(rate_vv), attr_variation)
+        self.rate_va = rng.lognormal(np.log(rate_va), attr_variation)
+        self.rate_av = rng.lognormal(np.log(rate_av), attr_variation)
+        self.antibody_decay_rate = rng.lognormal(np.log(antibody_decay_rate), attr_variation)
 
         # initialize virus_val and antibody_val according to cell type
         if type == 'infected':
@@ -84,7 +84,7 @@ class cell:
         V, A = self.virus_val, self.antibody_val
 
         # compute deltaV and delta_antibody
-        fluct = np.random.lognormal(0, fluctuation)
+        fluct = rng.lognormal(0, fluctuation)
         deltaV = fluct * scale_factor * self.__delta_virus(exposure) / precision
         deltaA = fluct * scale_factor * self.__delta_antibody() / precision
 
@@ -157,13 +157,14 @@ class board:
                 outfile.write(json_obj)
 
         if plot:
-            y = np.vstack((inf, rec, sus))
-            fig, ax = plt.subplots()
-            ax.stackplot(x, y, labels=('infected', 'recovered', 'susceptible'))
+            # y = np.vstack((inf, rec, sus))
+            # fig, ax = plt.subplots()
+            # ax.stackplot(x, y, labels=('infected', 'recovered', 'susceptible'))
+            plt.plot(x, inf)
             plt.xlabel('Days')
             plt.ylabel('Population')
-            plt.legend()
-            plt.show()
+            # plt.legend()
+            plt.savefig('output5.png')
         
         return sus, inf, rec, virus_dist, antibody_dist
 

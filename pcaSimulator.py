@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from argparse import ArgumentParser
 import json
 from pcaVisualizer import makeAni
+import itertools
 
 parser = ArgumentParser(prog = 'python pcaSimulator.py')
 parser.add_argument('-sd', '--seed', help = 'set seed for deterministic output', type = int)
@@ -20,7 +21,7 @@ attr_variation = 0.25           # variation of attributes of individual cells
 fluctuation = 0.5               # randomness within transition
 prob_infected = 0.001           # probability of a cell initially being infected
 virus_init = 0.01               # amount of virus of initially infected cells
-rate_vv = 0.5                   # change rate of virus depending on amount of virus
+rate_vv = 0.5                  # change rate of virus depending on amount of virus
 rate_va = 2.0                   # change rate of virus depending on amount of antibodies
 rate_av = 3.0                   # change rate of antibodies depending on amount of virus
 antibody_decay_rate = 0.20      # natural decay for antibodies
@@ -164,7 +165,7 @@ class board:
             plt.xlabel('Days')
             plt.ylabel('Population')
             # plt.legend()
-            plt.savefig('output5.png')
+            plt.savefig('output.png')
         
         return sus, inf, rec, virus_dist, antibody_dist
 
@@ -200,6 +201,24 @@ class board:
         plt.imshow(antibody_dist)
         plt.show()
 
+def datafit(data):
+    num_days = len(data)
+    scale_list = np.linspace(1.5, 2.5, 21, endpoint=True)
+    ratevv_list = np.linspace(0.4, 0.6, 21, endpoint=True)
+    min_mse = np.inf
+    optim_param = (2.0, 0.5)
+    for s, r in itertools.product(scale_list, ratevv_list):
+        scale_factor = s
+        rate_vv = r
+        sim = board(board_size, model="saturation")
+        ret = sim.run(num_days, plot=False)
+        mse = np.mean((data - ret[1])**2)
+        if mse < min_mse:
+            min_mse = mse
+            optim_param = (s, r)
+        print(f'Run {s, r} complete')
+    return optim_param
+
 if __name__ == '__main__':
     if type(args.seed) == int:
         rng = np.random.default_rng(seed = args.seed)
@@ -208,6 +227,14 @@ if __name__ == '__main__':
     if type(args.precision) == int:
         precision = args.precision
 
-    sim = board(board_size, model="saturation")
-    ret = sim.run(250)
+    # sim = board(board_size, model="saturation")
+    # ret = sim.run(250)
     # makeAni(ret[3], ret[4])
+    infile = open("Taipei.json", "r")
+    Taipei_data = json.load(infile)
+    optim_param = datafit(Taipei_data)
+    print(f'optimal parameters: {optim_param}')
+    scale_factor, rate_vv = optim_param
+    sim = board(board_size, model="saturation")
+    ret = sim.run(len(Taipei_data))
+    makeAni(ret[3], ret[4])

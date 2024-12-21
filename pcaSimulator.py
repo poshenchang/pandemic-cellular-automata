@@ -5,7 +5,7 @@ from argparse import ArgumentParser
 import json
 from pcaVisualizer import makeAni
 
-parser = ArgumentParser(prog = 'python pca-simulator.py')
+parser = ArgumentParser(prog = 'python pcaSimulator.py')
 parser.add_argument('-sd', '--seed', help = 'set seed for deterministic output', type = int)
 parser.add_argument('-S', '--size', help = 'set size for simulation board size', type = int)
 parser.add_argument('-p', '--precision', help = 'set precision for simulation', type = int)
@@ -13,17 +13,17 @@ args = parser.parse_args()
 
 # global variables
 
-board_size = 100                # size for the board
-scale_factor = 0.5              # scale factor of change in virus_val and antibody_val
-precision = 10                  # number of steps a day is divided into
-attr_variation = 0.25           # variation of attributes of individual cells
-fluctuation = 0.25              # randomness within transition
+board_size = 500                # size for the board
+scale_factor = 0.1              # scale factor of change in virus_val and antibody_val
+precision = 1                   # number of steps a day is divided into
+attr_variation = 0.2            # variation of attributes of individual cells
+fluctuation = 0.2               # randomness within transition
 prob_infected = 0.001           # probability of a cell initially being infected
 virus_init = 0.01               # amount of virus of initially infected cells
 rate_vv = 0.5                   # change rate of virus depending on amount of virus
 rate_va = 2.0                   # change rate of virus depending on amount of antibodies
 rate_av = 1.0                   # change rate of antibodies depending on amount of virus
-antibody_decay_rate = 0.03      # natural decay for antibodies
+antibody_decay_rate = 0.01      # natural decay for antibodies
 saturation_param = 0.5          # saturation parameter for antibody production
 
 threshold_infected = 0.1        # threshold amount of virus for a cell to be infected
@@ -32,9 +32,9 @@ threshold_recovered = 0.5       # threshold amount of antibody for a cell to be 
 rng = np.random.default_rng()   # generates random float distributed uniformly over [0,1)
 
 weight_spread = [[0.0, 0.0, 0.0, 0.0, 0.0],
-                [0.0, 0.0, 0.1, 0.0, 0.0],
-                [0.0, 0.1, 0.6, 0.1, 0.0],
-                [0.0, 0.0, 0.1, 0.0, 0.0],
+                [0.0, 0.0, 0.4, 0.0, 0.0],
+                [0.0, 0.4, 0.8, 0.4, 0.0],
+                [0.0, 0.0, 0.4, 0.0, 0.0],
                 [0.0, 0.0, 0.0, 0.0, 0.0]]  # weight for dependency of the change of rate of virus on neighbor cells
 
 
@@ -209,4 +209,4 @@ if __name__ == '__main__':
 
     sim = board(board_size, model="saturation")
     ret = sim.run(250)
-    makeAni(ret[3], ret[4])
+    # makeAni(ret[3], ret[4])

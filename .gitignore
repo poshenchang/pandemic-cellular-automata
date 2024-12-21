@@ -1,6 +1,5 @@
 .vscode
 __pycache__
-extract-csv.py
 *.log
 *.json
 *.csv
